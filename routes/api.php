@@ -6,6 +6,9 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\MovimientoInventarioController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\VentaController;
+use App\Http\Controllers\UsuarioController;
+use App\Models\User;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +22,12 @@ use App\Http\Controllers\ProductoController;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    // Obtener el usuario autenticado
+    $user = Auth::user();
+
+    if ($user->role === 'superusuario') {
+        return User::where('status',1)->get(); // Devuelve todos los usuarios
+    }
     return $request->user();
 });
 
@@ -37,3 +46,8 @@ Route::get('/login', function () {
 //Rutas para productos y movimientos
 Route::apiResource('productos', ProductoController::class);
 Route::apiResource('movimientos_inventario', MovimientoInventarioController::class);
+Route::apiResource('ventas', VentaController::class);
+
+//Desactivar Usuarios
+Route::patch('user/{id}/deactivate', [UsuarioController::class, 'deactivateUser']);
+

@@ -22,6 +22,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', 
+        'status'
     ];
 
     /**
@@ -57,5 +58,9 @@ class User extends Authenticatable
         }
 
         $this->attributes['role'] = $value;
+    }
+    public function ventas()
+    {
+    return $this->hasMany(Venta::class, 'id_usuario', 'id');
     }
 }
