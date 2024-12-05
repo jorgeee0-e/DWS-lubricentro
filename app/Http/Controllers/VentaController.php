@@ -43,12 +43,10 @@ class VentaController extends Controller
 
         $total= 0;
 
-        $venta= Venta::create([
-            'id_usuario'=> $request->id_usuario,
-            'total'=> $total,
-        ]);
+        
         foreach($request->detalles as $detalle){
-            $producto = Producto::find($detalle['id_producto']);
+            $id_producto = $detalle['id_producto']['id_producto'];
+            $producto = Producto::find($id_producto);
 
             if($producto->cantidad <$detalle['cantidad']){
                 return response()->json([
@@ -61,10 +59,13 @@ class VentaController extends Controller
             $subtotal = $precioConDescuento* $detalle['cantidad'];
 
             $total += $subtotal;
-
+            $venta= Venta::create([
+                'id_usuario'=> $request->id_usuario,
+                'total'=> $total,
+            ]);
             DetalleVenta::create([ 
                 'id_venta'=> $venta->id,
-                'id_producto'=> $detalle['id_producto'],
+                'id_producto'=> $detalle['id_producto']['id_producto'],
                 'cantidad' => $detalle['cantidad'],
                 'subtotal'=>$subtotal,
                 'descuento' => $descuento,

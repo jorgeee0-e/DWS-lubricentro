@@ -19,6 +19,7 @@ class Producto extends Model
         'precio_costo',
         'precio_venta',
         'marca',
+        'imagen',
     ];
 
      // Relación con los movimientos de inventario
@@ -26,4 +27,9 @@ class Producto extends Model
      {
          return $this->hasMany(MovimientoInventario::class, 'id', 'id_producto');
      }
+     // Para acceder a la URL pública de la imagen
+    public function getImagenUrlAttribute()
+    {
+        return $this->imagen ? Storage::url($this->imagen) : null;
+    }
 }

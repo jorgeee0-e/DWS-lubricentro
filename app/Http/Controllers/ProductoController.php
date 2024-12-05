@@ -37,9 +37,17 @@ class ProductoController extends Controller
             'descripcion'=>'nullable|string',
             'precio_costo'=>'required|numeric|min:0',
             'precio_venta'=>'required|numeric',
-            'marca'=>'required|string|max:100'
+            'marca'=>'required|string|max:100',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
         ]);
+
+        if($request->hasFile('imagen')){
+            $imagePath = $rquest->file('imagen')->store('public/productos');
+            $validated['imagen'] = $imagenPath; 
+        } else{
+            $imagePath = null;
+        }
         $producto = Producto::create($validated);
         return response()->json($producto);
     }
