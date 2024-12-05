@@ -20,6 +20,7 @@ class Producto extends Model
         'precio_venta',
         'marca',
         'imagen',
+        'cantidad',
     ];
 
      // Relación con los movimientos de inventario

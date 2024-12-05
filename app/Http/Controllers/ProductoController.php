@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\MovimientoInventario;
 
 class ProductoController extends Controller
 {
@@ -39,16 +40,23 @@ class ProductoController extends Controller
             'precio_venta'=>'required|numeric',
             'marca'=>'required|string|max:100',
             'imagen' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cantidad' => 'required|integer|min:1', 
 
         ]);
 
         if($request->hasFile('imagen')){
-            $imagePath = $rquest->file('imagen')->store('public/productos');
-            $validated['imagen'] = $imagenPath; 
+            $imagePath = $request->file('imagen')->store('public/productos');
+            $validated['imagen'] = $imagePath; 
         } else{
             $imagePath = null;
         }
         $producto = Producto::create($validated);
+        // Registrar un movimiento de inventario con la cantidad inicial
+        MovimientoInventario::create([
+            'id_producto' => $producto->id_producto,
+            'tipo' => 'entrada', // Siempre será una entrada para la cantidad inicial
+            'cantidad' => $validated['cantidad'],
+        ]);
         return response()->json($producto);
     }
 
