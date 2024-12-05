@@ -18,8 +18,6 @@ class MovimientoInventario extends Model
         'id_producto',
         'tipo',
         'cantidad',
-        'descuento',
-        'precio_venta',
     ];
 
     // Relación con el producto

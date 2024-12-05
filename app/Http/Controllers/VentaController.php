@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Venta;
 use App\Models\DetalleVenta;
 use App\Models\Producto;
+use App\Models\MovimientoInventario;
 
 class VentaController extends Controller
 {
@@ -73,10 +74,13 @@ class VentaController extends Controller
 
             //Actualizar cantidad de producto
             $producto->decrement('cantidad',$detalle['cantidad']);
-            
-            
 
-            
+            MovimientoInventario::create([
+                'id_producto' => $detalle['id_producto']['id_producto'],
+                'tipo' => 'salida', // Asumimos que 'salida' es el tipo de movimiento para las ventas
+                'cantidad' => $detalle['cantidad'],
+            ]);
+  
         }
         $venta->update(['total'=>$total]);
         return response()->json([
