@@ -50,6 +50,8 @@ class ProductoController extends Controller
     public function show(string $id)
     {
         //
+        $producto = Producto::findOrFail($id); // Buscar el producto por su id
+        return response()->json($producto); 
     }
 
     /**

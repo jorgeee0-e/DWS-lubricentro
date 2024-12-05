@@ -38,6 +38,7 @@ class VentaController extends Controller
             'detalles'=> 'required|array|min:1',
             'detalles*.id_producto'=>'required|exists:productos, id_producto',
             'detalles.*.cantidad'=> 'required|integer|min: 1',
+            'detalles.*.descuento'=> 'required|integer|min: 0|max:100',
         ]);
 
         $total= 0;
@@ -55,7 +56,10 @@ class VentaController extends Controller
                 ],400);
             }
 
-            $subtotal = $producto->precio_venta * $detalle['cantidad'];
+            $descuento = $detalle['descuento'] ?? 0;
+            $precioConDescuento = $producto->precio_venta - ($producto->precio_venta * $descuento / 100);
+            $subtotal = $precioConDescuento* $detalle['cantidad'];
+
             $total += $subtotal;
 
             DetalleVenta::create([ 
@@ -63,18 +67,21 @@ class VentaController extends Controller
                 'id_producto'=> $detalle['id_producto'],
                 'cantidad' => $detalle['cantidad'],
                 'subtotal'=>$subtotal,
+                'descuento' => $descuento,
             ]);
 
             //Actualizar cantidad de producto
             $producto->decrement('cantidad',$detalle['cantidad']);
             
-            $venta->update(['total'=>$total]);
+            
 
-            return response()->json([
-                'message'=>'Venta creada con éxito',
-                'venta'=> $venta->load('detalles.producto'),
-            ], 201);
+            
         }
+        $venta->update(['total'=>$total]);
+        return response()->json([
+            'message'=>'Venta creada con éxito',
+            'venta'=> $venta->load('detalles.producto'),
+        ], 201);
     }
 
     /**

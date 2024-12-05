@@ -13,7 +13,8 @@ class DetalleVenta extends Model
     protected $fillable = ['id_venta', 
                             'id_producto',
                             'cantidad',
-                            'subtotal'];
+                            'subtotal',
+                            'descuento'];
     public function venta(){
         return $this->belongsTo(Venta::class,'id');
     }
