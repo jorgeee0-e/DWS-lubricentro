@@ -50,4 +50,6 @@ Route::apiResource('ventas', VentaController::class);
 
 //Desactivar Usuarios
 Route::patch('user/{id}/deactivate', [UsuarioController::class, 'deactivateUser']);
+//Get un solo usuario
+Route::get('user/{id}', [UsuarioController::class, 'getUser']);
 

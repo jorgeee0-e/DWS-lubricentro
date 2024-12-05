@@ -8,6 +8,16 @@ use Illuminate\Http\Request;
 class UsuarioController extends Controller
 {
     //
+    public function getUser($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+
+        return response()->json($user);
+    }
     public function deactivateUser($id)
     {
         $user = User::find($id);
