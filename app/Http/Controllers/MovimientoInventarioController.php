@@ -33,12 +33,17 @@ class MovimientoInventarioController extends Controller
     {
         //
         $validated = $request->validate([
-            'id_producto' => 'required|exists:productos,id_producto',
+            'id_producto.id_producto' => 'required|exists:productos,id_producto',
             'tipo' => 'required|in:entrada,salida',
             'cantidad' => 'required|integer|min:1',
         ]);
-        $producto = Producto::findOrFail($validated['id_producto']);
-        $movimiento = MovimientoInventario::create($validated);
+        $producto = Producto::findOrFail($validated['id_producto']['id_producto']);
+        // Crear el movimiento de inventario
+        $movimiento = MovimientoInventario::create([
+        'id_producto' => $validated['id_producto']['id_producto'],
+        'tipo' => $validated['tipo'],
+        'cantidad' => $validated['cantidad'],
+        ]);
 
         if($validated['tipo']=== 'entrada'){
             $producto->increment('cantidad',$validated['cantidad']);
