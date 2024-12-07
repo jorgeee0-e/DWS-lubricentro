@@ -11,7 +11,7 @@ class Venta extends Model
     protected $fillable = ['id_usuario', 'total'];
 
     public function detalles(){
-        return $this->hasMany(DetalleVenta::class, 'id');
+        return $this->hasMany(DetalleVenta::class, 'id_venta');
     }
     public function usuario(){
     return $this->belongsTo(User::class, 'id_usuario', 'id');

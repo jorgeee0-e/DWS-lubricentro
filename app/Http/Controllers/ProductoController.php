@@ -94,6 +94,14 @@ class ProductoController extends Controller
             'precio_venta'=>'required|numeric',
             'marca'=>'required|string|max:100'
         ]);
+        // Validar si precio_costo o precio_venta son cero, y no actualizar si es el caso
+    if ($validated['precio_costo'] == 0) {
+        unset($validated['precio_costo']);
+    }
+
+    if ($validated['precio_venta'] == 0) {
+        unset($validated['precio_venta']);
+    }
 
         $producto->update($validated);
         return response()->json($producto);
@@ -106,7 +114,7 @@ class ProductoController extends Controller
     {
         //
         $producto = Producto::findOrFail($id);
-        $product->delete();
-        return response()->json(['mensaje'=>'Producto'+$id+'borrado con éxito'],204);
+        $producto->delete();
+        return response()->json(['mensaje'=>'Producto borrado con éxito'],204);
     }
 }

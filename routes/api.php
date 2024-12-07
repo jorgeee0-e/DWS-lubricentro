@@ -9,7 +9,8 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\UsuarioController;
 use App\Models\User;
-
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -52,4 +53,10 @@ Route::apiResource('ventas', VentaController::class);
 Route::patch('user/{id}/deactivate', [UsuarioController::class, 'deactivateUser']);
 //Get un solo usuario
 Route::get('user/{id}', [UsuarioController::class, 'getUser']);
+//ResetPassword
+Route::post('reset-password', [ResetPasswordController::class, 'resetPassword']);
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+//actualziar usuario
+Route::put('/user/{id}/update', [UsuarioController::class, 'updateUser']);
 
