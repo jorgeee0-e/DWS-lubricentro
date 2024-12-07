@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -21,8 +20,6 @@ class RegisterController extends Controller
     | provide this functionality without requiring any additional code.
     |
     */
-
-    use RegistersUsers;
 
     /**
      * Where to redirect users after registration.
@@ -64,14 +61,23 @@ class RegisterController extends Controller
      * @return \App\Models\User
      */
 
-     protected function registered(Request $request, $user)
-    {
-        // Retorna un JSON con los datos del usuario registrado
-        return response()->json([
-            'message' => 'User registered successfully',
-            'user' => $user,
-        ]);
-    }
+     public function register(Request $request)
+     {
+         $this->validator($request->all())->validate();
+     
+         // Validación para permitir solo a superusuarios registrar nuevos usuarios
+         if (auth()->check() && auth()->user()->role !== 'superusuario') {
+             return response()->json(['message' => 'Unauthorized'], 403);
+         }
+     
+         $user = $this->create($request->all());
+     
+         return response()->json([
+             'message' => 'User registered successfully',
+             'user' => $user,
+         ], 201);
+     }     
+
     protected function create(array $data)
     {
         return User::create([

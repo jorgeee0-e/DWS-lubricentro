@@ -8,55 +8,53 @@ use App\Http\Controllers\MovimientoInventarioController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\UsuarioController;
-use App\Models\User;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
+| Rutas de la API organizadas por roles y con protecciones mediante middleware.
 |
 */
 
+// Ruta para obtener información del usuario autenticado
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    // Obtener el usuario autenticado
-    $user = Auth::user();
-
-    if ($user->role === 'superusuario') {
-        return User::where('status',1)->get(); // Devuelve todos los usuarios
-    }
     return $request->user();
 });
 
-//Register new user
-Route::post('/register',[RegisterController::class, 'register']);
+// Rutas públicas (sin protección)
+Route::group([], function () {
+    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+});
 
-//Login
-Route::post('/login',[LoginController::class, 'login']);
-//Logout 
-Route::post('/logout', [LoginController::class, 'logout']);
-//Not auth users
-Route::get('/login', function () {
-    return response()->json(['message' => 'Please log in'], 401);
-})->name('login');
+// Rutas protegidas con autenticación básica
+Route::middleware('auth:sanctum')->group(function () {
 
-//Rutas para productos y movimientos
-Route::apiResource('productos', ProductoController::class);
-Route::apiResource('movimientos_inventario', MovimientoInventarioController::class);
-Route::apiResource('ventas', VentaController::class);
+    // Rutas para todos los usuarios autenticados
+    Route::post('/logout', [LoginController::class, 'logout']);
+    Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword']);
+    Route::put('/user/{id}/update', [UsuarioController::class, 'updateUser']);
 
-//Desactivar Usuarios
-Route::patch('user/{id}/deactivate', [UsuarioController::class, 'deactivateUser']);
-//Get un solo usuario
-Route::get('user/{id}', [UsuarioController::class, 'getUser']);
-//ResetPassword
-Route::post('reset-password', [ResetPasswordController::class, 'resetPassword']);
+    // Rutas para roles específicos
+    Route::middleware('role:superusuario')->group(function () {
+        Route::patch('/user/{id}/deactivate', [UsuarioController::class, 'deactivateUser']);
+        Route::get('/user/{id}', [UsuarioController::class, 'getUser']);
+        Route::apiResource('/productos', ProductoController::class);
+        Route::apiResource('/movimientos_inventario', MovimientoInventarioController::class);
+        Route::apiResource('/ventas', VentaController::class);
+    });
 
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
-//actualziar usuario
-Route::put('/user/{id}/update', [UsuarioController::class, 'updateUser']);
+    Route::middleware('role:administrador_inventarios')->group(function () {
+        Route::apiResource('/movimientos_inventario', MovimientoInventarioController::class)->only(['index', 'store', 'update']);
+        Route::apiResource('/productos', ProductoController::class)->only(['index', 'store', 'update']);
+    });
 
+    Route::middleware('role:vendedor')->group(function () {
+        Route::apiResource('/ventas', VentaController::class)->only(['index', 'store']);
+    });
+});
